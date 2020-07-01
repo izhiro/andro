@@ -51,12 +51,14 @@ public class registrasiactivity extends AppCompatActivity {
     public static final int MY_PERMISSION_REQUEST_GALERI = 200;
     public static final String ALLOW_KEY = "ALLOWED";
     public static final String CAMERA_PREF = "camera_pref";
+    database_halper myDb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.registrasi_activity);
 
+        myDb = new database_halper(this);
         nim = findViewById(R.id.nim);
         nama = findViewById(R.id.nama);
         alamat = findViewById(R.id.Alamat);
@@ -114,78 +116,47 @@ public class registrasiactivity extends AppCompatActivity {
                 daftar.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (nim.getText().toString().equals("")) {
-                            Toast.makeText(getApplicationContext(), "Nim Kosong !", Toast.LENGTH_SHORT).show();
-                        } else if (nama.getText().toString().equals("")) {
-                            Toast.makeText(getApplicationContext(), "Nama Kosong !", Toast.LENGTH_SHORT).show();
-                        } else if (alamat.getText().toString().equals("")) {
-                            Toast.makeText(getApplicationContext(), "Alamat Kosong !", Toast.LENGTH_SHORT).show();
-                        } else if (telepon.getText().toString().equals("")) {
-                            Toast.makeText(getApplicationContext(), "Nomor Telpon Kosong !", Toast.LENGTH_SHORT).show();
-                        } else if (tempatlahir.getText().toString().equals("")) {
-                            Toast.makeText(getApplicationContext(), "Tempat Lahir Kosong !", Toast.LENGTH_SHORT).show();
-                        } else if (tanggallahir.getText().toString().equals("")) {
-                            Toast.makeText(getApplicationContext(), "Tanggal Lahir Kosong !", Toast.LENGTH_SHORT).show();
-                        } else {
-                            PrintWriter pw;
-                            try {
-                                filename = Environment.getExternalStorageDirectory() + "/"+ nim.getText().toString()+"_"+nama.getText().toString() + ".txt";
-                                pw = new PrintWriter(filename);
-                                pw.println(nim.getText().toString());
-                                pw.println(nama.getText().toString());
-                                pw.println(alamat.getText().toString());
-                                pw.println(telepon.getText().toString());
-
-                                if (lakilaki.isChecked()) {
-                                    pw.println("Laki-Laki");
-                                }
-                                if (perempuan.isChecked()) {
-                                    pw.println("Perempuan");
-                                }
-
-                                pw.println(tempatlahir.getText().toString());
-                                pw.println(tanggallahir.getText().toString());
-
-                                if (membaca.isChecked()) {
-                                    pw.println("Membaca ");
-                                }
-                                if (games.isChecked()) {
-                                    pw.println("Main Game ");
-                                }
-                                if (sepeda.isChecked()) {
-                                    pw.println("Bersepeda ");
-                                }
-                                if (berkumpul.isChecked()) {
-                                    pw.println("Berkumpul Dengan Teman ");
-                                }
-                                if (mendaki.isChecked()) {
-                                    pw.println("Mendaki Gunung ");
-                                }
-                                if (sepakbola.isChecked()) {
-                                    pw.println("Sepak Bola ");
-                                }
-
-                                pw.close();
-                                dialog.setMessage("Sukses");
-                                dialog.show();
-                            } catch (FileNotFoundException e) {
-                                e.printStackTrace();
-                                Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_SHORT).show();
-                            }
+                        String NIM = nim.getText().toString();
+                        String Nama = nama.getText().toString();
+                        String Alamat = alamat.getText().toString();
+                        String Telepon = telepon.getText().toString();
+                        String Jenis_kelamin = "";
+                        if(lakilaki.isChecked()){
+                            Jenis_kelamin+="Laki-Laki";
                         }
-                        nim.setText("");
-                        nama.setText("");
-                        alamat.setText("");
-                        lakilaki.setChecked(false);
-                        perempuan.setChecked(false);
-                        tempatlahir.setText("");
-                        tanggallahir.setText("");
-                        membaca.setChecked(false);
-                        games.setChecked(false);
-                        sepeda.setChecked(false);
-                        berkumpul.setChecked(false);
-                        mendaki.setChecked(false);
-                        sepakbola.setChecked(false);
+                        if(perempuan.isChecked()){
+                            Jenis_kelamin+="Perempuan";
+                        }
+                        String Tempat_lahir = tempatlahir.getText().toString();
+                        String Tanggal_lahir = tanggallahir.getText().toString();
+                        String Hobby = "";
+                        if(sepeda.isChecked()){
+                            Hobby += "Bersepeda ";
+                        }
+                        if(membaca.isChecked()){
+                            Hobby += "Membaca ";
+                        }
+                        if(games.isChecked()){
+                            Hobby += "Main Games ";
+                        }
+                        if(berkumpul.isChecked()){
+                            Hobby += "Berkumpul Dengan Teman ";
+                        }
+                        if(mendaki.isChecked()){
+                            Hobby += "Mendaki Gunung ";
+                        }
+                        if(sepakbola.isChecked()){
+                            Hobby += "Sepak Bola";
+                        }
+                        String Foto = gambar.toString();
+
+                        Boolean result = myDb.insertData(NIM,Nama,Alamat,Telepon,Jenis_kelamin,Tempat_lahir,Tanggal_lahir,Hobby,Foto);
+                        if (result == true){
+                            Toast.makeText(registrasiactivity.this, "Data Telah Tersimpan", Toast.LENGTH_SHORT).show();
+                        }else{
+                            Toast.makeText(registrasiactivity.this, "Data Belum Tersimpan", Toast.LENGTH_SHORT).show();
+                        }
+                        clear();
 
                     }
 
@@ -217,6 +188,24 @@ public class registrasiactivity extends AppCompatActivity {
 
                     }
         }
+    }
+
+    private void clear(){
+        nim.setText("");
+        nama.setText("");
+        alamat.setText("");
+        telepon.setText("");
+        lakilaki.setChecked(false);
+        perempuan.setChecked(false);
+        tempatlahir.setText("");
+        tanggallahir.setText("");
+        membaca.setChecked(false);
+        games.setChecked(false);
+        sepeda.setChecked(false);
+        berkumpul.setChecked(false);
+        mendaki.setChecked(false);
+        sepakbola.setChecked(false);
+        gambar.setImageURI(null);
     }
 
     private boolean checkPermission(){
